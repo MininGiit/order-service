@@ -1,4 +1,4 @@
-package mapCache
+package cache
 
 import (
 	"orderAPI/service/internal/domain/order"
@@ -24,4 +24,8 @@ func (c *Cache) Get(uid string) (*order.Order, bool) {
 
 func (c *Cache) Set(order *order.Order){
 	c.data[order.OrderUID] = *order
+}
+
+func (c *Cache) SetOrders([]order.Order) {
+	return
 }

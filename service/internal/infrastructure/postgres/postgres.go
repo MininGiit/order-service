@@ -25,6 +25,10 @@ func (s *Storage) GetByUID(uid string) (*order.Order, error) {
 	return &order, nil
 }
 
+func (s *Storage) GetAll() ([]order.Order, error) {
+	return nil, nil
+}
+
 func (s *Storage) Save(order *order.Order) error {
 	orderJSON, err := json.Marshal(order)
 	if err != nil {
