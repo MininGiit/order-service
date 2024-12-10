@@ -5,13 +5,13 @@ import "orderAPI/service/internal/domain/order"
 type Cache interface {
 	Get(uid string) (*order.Order, bool)
 	Set(order *order.Order)
-	SetOrders([]order.Order)
+	SetOrders([]*order.Order)
 }
 
 type Storage interface{
 	GetByUID(uid string) (*order.Order, error)
 	Save(*order.Order) error
-	GetAll() ([]order.Order, error)
+	GetAll() ([]*order.Order, error)
 }
 
 type Repo struct {

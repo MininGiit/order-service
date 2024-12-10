@@ -31,7 +31,7 @@ func (s *Storage) GetByUID(uid string) (*order.Order, error) {
 	return &order, nil
 }
 
-func (s *Storage) GetAll() ([]order.Order, error) {
+func (s *Storage) GetAll() ([]*order.Order, error) {
 	return nil, nil
 }
 
