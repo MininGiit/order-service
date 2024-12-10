@@ -1,0 +1,20 @@
+database:
+  dmbs: postgres
+  postgres:
+    host: localhost
+    port: 5436
+    user: myuser
+    password: mypassword
+    dbname: mydb
+    sslmode: disable
+server:
+  host: localhost
+  port: 8080
+broker:
+  name: kafka
+  kafka:
+    host: localhost
+    port: 9092
+    group: myGroup
+    reset: earliest
+    autoCommit: true

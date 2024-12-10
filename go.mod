@@ -7,6 +7,8 @@ require (
 	github.com/jackc/pgx/v4 v4.18.3
 )
 
+require gopkg.in/yaml.v3 v3.0.1 // indirect
+
 require (
 	github.com/gorilla/mux v1.8.1
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect

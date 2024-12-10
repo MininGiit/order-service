@@ -6,7 +6,6 @@ import (
 	"log"
 	"orderAPI/service/internal/domain/order"
 	"orderAPI/service/internal/usecase"
-
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
@@ -15,21 +14,8 @@ type KafkaHandler struct {
 	consumer	*kafka.Consumer
 }
 
-//перенести инициализацию консьюмера в pkg + конфиги
-
-func New(uc usecase.Order) (*KafkaHandler, error) {
-	//Добавить парсе конфигов
-	config := kafka.ConfigMap{
-        "bootstrap.servers": "localhost:9092",
-        "group.id":          "myGroup",
-        "auto.offset.reset": "earliest",
-        "enable.auto.commit": false, // Отключаем автоматическое подтверждение
-    }
-	consumer, err := kafka.NewConsumer(&config)
-	if err != nil {
-		return nil, err
-	}
-	return &KafkaHandler{uc: uc, consumer: consumer}, nil
+func New(consumer *kafka.Consumer, uc usecase.Order) (*KafkaHandler) {
+	return &KafkaHandler{uc: uc, consumer: consumer}
 }
 
 func (k *KafkaHandler) Start() error {

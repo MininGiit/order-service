@@ -12,6 +12,12 @@ type Storage struct {
 	db	*pgx.Conn
 }
 
+func New(conn *pgx.Conn) *Storage {
+	return &Storage{
+		db: conn,
+	}
+}
+
 func (s *Storage) GetByUID(uid string) (*order.Order, error) {
 	query := `SELECT order_data FROM orders WHERE order_uid = $1`
 	var orderJSON []byte
@@ -42,10 +48,4 @@ func (s *Storage) Save(order *order.Order) error {
 		return err
 	}
 	return nil
-}
-
-func New(conn *pgx.Conn) *Storage {
-	return &Storage{
-		db: conn,
-	}
 }

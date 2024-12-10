@@ -8,33 +8,35 @@ import (
 	"orderAPI/service/internal/infrastructure/postgres"
 	"orderAPI/service/internal/repository"
 	ucOrder "orderAPI/service/internal/usecase/order"
-
-	//	"orderAPI/service/internal/repository/storage/postgres"
+	pkgKafka "orderAPI/service/pkg/kafka"
+	pkgPostgres "orderAPI/service/pkg/postgres"
+	conf "orderAPI/service/cmd/config"
 	"log"
-	"time"
-
-	"github.com/jackc/pgx/v4"
+	"fmt"
 )
 
 func main() {
-	//Вынести подключение в pkg и добавить конфиги
-	connString := "postgres://myuser:mypassword@localhost:5436/mydb?sslmode=disable"
-
-	// Подключение к базе данных
-	log.Println("Connect to db")
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	conn, err := pgx.Connect(ctx, connString)
+	configPath := "service/configs/conf.yaml"
+	config, err := conf.InitConfig(configPath)
 	if err != nil {
-	 	log.Fatal(err)
+		fmt.Println(err)
 	}
-
+	pgConn, err := pkgPostgres.NewConnect(config.DB.Postgres)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	kafkaConsumer, err := pkgKafka.NewConsumer(config.Broker.Kafka)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	log.Println("Start")
-	storage := postgres.New(conn)
+	storage := postgres.New(pgConn)
 	cache := cache.New(50)
 	repo := repository.New(storage, cache)
 	useCase := ucOrder.New(*repo)
-	kafkaHandler, _ := kafka.New(useCase)
+	kafkaHandler := kafka.New(kafkaConsumer, useCase)
 
 	log.Println("Start kafka")
 	go kafkaHandler.Start()
@@ -42,5 +44,5 @@ func main() {
 	server := http.NewServer(useCase)
 	log.Println("Start server")
 	server.StartServer()
-	defer conn.Close(context.Background())
+	defer pgConn.Close(context.Background())
 }
