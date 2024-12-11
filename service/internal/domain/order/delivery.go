@@ -6,7 +6,7 @@ type Delivery struct {
 	Phone	string	`json:"phone"`
 	Zip		string	`json:"zip"`
 	City	string	`json:"city"`
-	Addres	string	`json:"addres"`
+	Address	string	`json:"address"`
 	Region	string	`json:"region"`
 	Email	string	`json:"email"`
 }
@@ -15,7 +15,7 @@ func NewDelivery(name,
 	phone, 
 	zip,
 	city, 
-	addres, 
+	address, 
 	region, 
 	email string) *Delivery {
 		return &Delivery{
@@ -23,7 +23,7 @@ func NewDelivery(name,
 			Phone: 	phone,
 			Zip:	zip,
 			City:	city,
-			Addres: addres,
+			Address: address,
 			Region: region,
 			Email: email,
 		}

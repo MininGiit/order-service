@@ -14,9 +14,13 @@ type Item struct {
 type Cache struct {
 	size		int
 	maxSize		int
-	timeQueue	list.List	//содержит только ключи data
+	timeQueue	*list.List	//содержит только ключи data
 	mutex		sync.Mutex
 	data		map[string] *order.Order
+}
+
+func (c *Cache) GetSize() int{
+	return c.size
 }
 
 func New(maxSize int) *Cache {
@@ -25,7 +29,7 @@ func New(maxSize int) *Cache {
 	return &Cache{
 		size: 		0,
 		maxSize: 	maxSize,
-		timeQueue: 	*timeQueue,
+		timeQueue: 	timeQueue,
 		data: 		data,
 	}
 }
@@ -40,7 +44,7 @@ func (c *Cache) Get(uid string) (*order.Order, bool) {
 func (c *Cache) Set(order *order.Order){
 	if c.size >= c.maxSize {
 		c.mutex.Lock()
-		front := c.timeQueue.Front()
+		front := c.timeQueue.Front()	
 		key := front.Value.(string)
 		delete(c.data, key)
 		c.size--
@@ -48,6 +52,7 @@ func (c *Cache) Set(order *order.Order){
 	}
 	c.mutex.Lock()
 	c.data[order.OrderUID] = order
+	
 	c.timeQueue.PushBack(order.OrderUID)
 	c.size++
 	c.mutex.Unlock()
