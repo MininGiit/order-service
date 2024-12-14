@@ -3,6 +3,8 @@ package http
 import (
 	"orderAPI/service/internal/usecase"
 	"net/http"
+	"log"
+	"context"
 )
 
 type Server struct {
@@ -23,5 +25,10 @@ func NewServer(ucOrder usecase.Order) *Server {
 
 
 func (s *Server) StartServer() {
+	log.Println("start server on port:", s.httpServer.Addr)
 	s.httpServer.ListenAndServe()
+}
+
+func (s *Server)Shutdown(ctx context.Context) error{
+	return s.httpServer.Shutdown(ctx)
 }

@@ -57,8 +57,8 @@ func generateOrder() *order.Order {
         Price:       uint(rand.Intn(1000)),
         Rid:         randomString(16),
         Name:        randomString(5),
-        Sale:        fmt.Sprintf("%d%%", rand.Intn(90)),
-        Size:        uint(rand.Intn(10)),
+        Sale:        uint(rand.Intn(90)),
+        Size:        fmt.Sprintf("%stest", randomString(10)),
         TotalPrice:  uint(rand.Intn(300)),
         NmID:        uint(rand.Int31n(999999)),
         Brand:       randomString(5),
@@ -72,7 +72,7 @@ func generateOrder() *order.Order {
     newOrder.DeliveryService = "meest"
     newOrder.ShardKey = "9"
     newOrder.SmId = uint64(rand.Int63n(999999999))
-    newOrder.DateCreated = time.Now()
+    newOrder.DateCreated = time.Now().UTC()
     newOrder.OofShard = "1"
 
     return newOrder

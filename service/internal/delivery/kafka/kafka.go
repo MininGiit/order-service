@@ -7,6 +7,7 @@ import (
 	"orderAPI/service/internal/domain/order"
 	"orderAPI/service/internal/usecase"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/go-playground/validator/v10"
 )
 
 type KafkaHandler struct {
@@ -28,27 +29,37 @@ func (k *KafkaHandler) Start() error {
 }
 
 func (k *KafkaHandler) consumeMessages() {
+	validate := validator.New()
     for {
         msg, err := k.consumer.ReadMessage(-1)
         if err == nil {
-            log.Printf("Received message: %s", string(msg.Value))
 			var order order.Order 
 			err := json.NewDecoder(bytes.NewReader(msg.Value)).Decode(&order)
 			if err != nil {
-				log.Println("error encoding message")
+				log.Println("error encoding message:", err)
+				k.consumer.CommitMessage(msg)
+				continue
+			}
+			err = validate.Struct(order)
+			if err != nil {
+				log.Println("error validate message:", err)
+				k.consumer.CommitMessage(msg)
+				continue
 			}
 			err = k.uc.Save(&order)
 			if err != nil {
-				log.Printf("Error save message: %v", err)
+				log.Printf("error save message: %v", err)
+				continue
 			}
+			log.Println("message processed successfully")
             _, err = k.consumer.CommitMessage(msg)
             if err != nil {
-                log.Printf("Error committing message: %v", err)
+                log.Println("error committing message:", err)
             } else {
-				log.Printf("Commit message: %s", string(msg.Value))
+				log.Println("commit message:")
 			}
         } else {
-            log.Printf("Error while reading message: %v", err)
+            log.Printf("error while reading message: %v", err)
         }
     }
 }

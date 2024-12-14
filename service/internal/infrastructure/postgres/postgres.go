@@ -21,9 +21,13 @@ func New(conn *pgx.Conn) *Storage {
 func (s *Storage) GetByUID(uid string) (*order.Order, error) {
 	query := `SELECT order_data FROM orders WHERE order_uid = $1`
 	var orderJSON []byte
-	s.db.QueryRow(context.Background(), query, uid).Scan(&orderJSON)
+	err := s.db.QueryRow(context.Background(), query, uid).Scan(&orderJSON)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
 	var order order.Order
-	err := json.Unmarshal(orderJSON, &order)
+	err = json.Unmarshal(orderJSON, &order)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -32,7 +36,27 @@ func (s *Storage) GetByUID(uid string) (*order.Order, error) {
 }
 
 func (s *Storage) GetAll() ([]*order.Order, error) {
-	return nil, nil
+	query := `SELECT order_data FROM orders`
+	rows, err := s.db.Query(context.Background(), query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var orders []*order.Order
+	for rows.Next() {
+		var orderJSON []byte
+		err = rows.Scan(&orderJSON)
+		if err != nil {
+			return nil, err
+		}
+		var order order.Order
+		err = json.Unmarshal(orderJSON, &order)
+		if err != nil {
+			return nil, err
+		}
+		orders = append(orders, &order)
+	}
+	return orders, nil
 }
 
 func (s *Storage) Save(order *order.Order) error {

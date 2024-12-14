@@ -2,3 +2,4 @@
 consumer.go
 query.sql
 .vscode
+parseConfig.go

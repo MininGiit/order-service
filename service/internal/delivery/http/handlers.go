@@ -22,6 +22,7 @@ func NewHandler(ucOrder	usecase.Order) *OrderHandler{
 func (h *OrderHandler)InitRouter() *mux.Router {
 	router := mux.NewRouter()
 	router.HandleFunc("/orders/{id}", h.getOrder).Methods("GET")
+	router.HandleFunc("/page", h.GetHTMLPage)
 	return router
 }
 
@@ -31,6 +32,13 @@ func (h *OrderHandler) getOrder(w http.ResponseWriter, r *http.Request) {
 	order, err := h.ucOrder.GetByUID(orderID)
 	if err != nil {
 		log.Println("error", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if order == nil {
+		log.Println("order not found")
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 	json.NewEncoder(w).Encode(order)
 }
